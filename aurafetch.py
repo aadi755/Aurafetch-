@@ -7,6 +7,7 @@ import subprocess
 import time
 import getpass
 import shutil
+import sys
 
 # Auto-install/import required modules
 def import_or_install(package, import_name=None):
@@ -21,6 +22,16 @@ psutil = import_or_install("psutil")
 netifaces = import_or_install("netifaces")
 requests = import_or_install("requests")
 distro = import_or_install("distro")
+
+# Handle --update
+def handle_update():
+    print("📦 Reinstalling AuraFetch...")
+    try:
+        subprocess.check_call("bash <(curl -s https://raw.githubusercontent.com/aadi755/Aurafetch-/main/install.sh)", shell=True, executable="/bin/bash")
+        print("✅ Update complete!")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Update failed: {e}")
+    sys.exit(0)
 
 def get_logo():
     os_id = distro.id().lower()
@@ -46,7 +57,6 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
         `:+ssssssssssssssssss+:`          
             .-/+oossssoo+/-               
 \033[0m''',
-
         "debian": '''\033[1;31m
        _,met$$$$$gg.       
     ,g$$$$$$$$$$$$$$$P.    
@@ -61,12 +71,11 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
  `$$b      "-.__             
   `Y$$                          
    `Y$$.                        
-     `$$b.                    
-       `Y$$b.                 
+     `$$b.                     
+       `Y$$b.                  
           `"Y$b._             
               `"""
 \033[0m''',
-
         "arch": '''\033[1;34m
                  -`                 
                 .o+`                
@@ -86,9 +95,8 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
   `/ossssso+/:-        -:/+osssso+-  
  `+sso+:-`                 `.-/+oso: 
 `++:.                           `-/+/
-.`                                 `/ 
+.`                                 `/
 \033[0m''',
-
         "kali": '''\033[1;36m
      ____                      
     /\\  _`\\                     
@@ -99,7 +107,6 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
         \\/___/ \\/___/ \\/_/\\/_/ 
 \033[0m'''
     }
-
     return logos.get(os_id, "\033[1;32mAuraFetch\033[0m")
 
 def get_hostname():
@@ -197,6 +204,9 @@ def get_package_count():
         return "N/A"
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--update":
+        handle_update()
+
     print(get_logo())
     print("🌌 \033[1m[ AuraFetch - System Info ]\033[0m 🌌\n")
     print(f"👤 User       : {getpass.getuser()}")
@@ -217,6 +227,7 @@ def main():
     print(f"🌐 Local IP   : {local}")
     print(f"🛰️ Public IP  : {public}")
     print("\n✅ Run again anytime with: \033[1maurafetch\033[0m")
+    print("🔄 Update with: \033[1maurafetch --update\033[0m")
 
 if __name__ == "__main__":
     main()
