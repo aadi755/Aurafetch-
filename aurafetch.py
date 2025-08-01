@@ -8,12 +8,19 @@ import time
 import getpass
 import shutil
 
-# Required modules
-import psutil
-import netifaces
-import requests
-import distro
+# Auto-install/import required modules
+def import_or_install(package, import_name=None):
+    import importlib
+    try:
+        return importlib.import_module(import_name or package)
+    except ImportError:
+        subprocess.check_call([shutil.which("python3") or "python3", "-m", "pip", "install", "--quiet", package])
+        return importlib.import_module(import_name or package)
 
+psutil = import_or_install("psutil")
+netifaces = import_or_install("netifaces")
+requests = import_or_install("requests")
+distro = import_or_install("distro")
 
 def get_logo():
     os_id = distro.id().lower()
@@ -83,22 +90,20 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
 \033[0m''',
 
         "kali": '''\033[1;36m
-     ____      
-    /\\  _`\\    
-    \\ \\ \\/\\_\\  ___     ___    
-     \\ \\ \\/_/_ / __`\\ /' _ `\\  
-      \\ \\ \\L\\ \\\\ \\L\\ \\\\ \\ \\/\\ \\ 
-       \\ \\____/ \\____/ \\_\\ \\_\\
-        \\/___/ \\/___/ \\/_/\\/_/
+     ____                      
+    /\\  _`\\                     
+    \\ \\ \\/\\_\\  ___     ___     
+     \\ \\ \\/_/_ / __`\\ /' _ `\\   
+      \\ \\ \\L\\ \\\\ \\L\\ \\\\ \\ \\/\\ \\  
+       \\ \\____/ \\____/ \\_\\ \\_\\  
+        \\/___/ \\/___/ \\/_/\\/_/ 
 \033[0m'''
     }
 
     return logos.get(os_id, "\033[1;32mAuraFetch\033[0m")
 
-
 def get_hostname():
     return socket.gethostname()
-
 
 def get_uptime():
     uptime_seconds = int(time.time() - psutil.boot_time())
@@ -106,14 +111,11 @@ def get_uptime():
     minutes = (uptime_seconds % 3600) // 60
     return f"{hours}h {minutes}m"
 
-
 def get_shell():
     return os.environ.get("SHELL", "N/A")
 
-
 def get_terminal():
     return os.environ.get("TERM", "N/A")
-
 
 def get_cpu():
     cpu = platform.processor()
@@ -127,7 +129,6 @@ def get_cpu():
             return "Unknown CPU"
     return cpu
 
-
 def get_cpu_temp():
     path = "/sys/class/thermal/thermal_zone0/temp"
     if os.path.exists(path):
@@ -138,7 +139,6 @@ def get_cpu_temp():
             pass
     return "N/A"
 
-
 def get_gpu():
     if shutil.which("lspci"):
         try:
@@ -148,20 +148,17 @@ def get_gpu():
             return "Error reading GPU"
     return "lspci not installed"
 
-
 def get_ram():
     mem = psutil.virtual_memory()
     used = round(mem.used / 1e9, 2)
     total = round(mem.total / 1e9, 2)
     return f"{used} / {total} GB"
 
-
 def get_disk():
     disk = psutil.disk_usage('/')
     used = disk.used // 2**30
     total = disk.total // 2**30
     return f"{used} / {total} GB"
-
 
 def get_ip():
     local, public = "N/A", "N/A"
@@ -176,7 +173,6 @@ def get_ip():
         pass
     return local, public
 
-
 def get_resolution():
     if os.environ.get("DISPLAY") and shutil.which("xdpyinfo"):
         try:
@@ -185,7 +181,6 @@ def get_resolution():
         except:
             return "Unknown"
     return "No X / Headless"
-
 
 def get_package_count():
     try:
@@ -201,10 +196,9 @@ def get_package_count():
     except:
         return "N/A"
 
-
 def main():
     print(get_logo())
-    print("🌌 \033[1m[ AuraFetch - Ultimate System Info ]\033[0m 🌌\n")
+    print("🌌 \033[1m[ AuraFetch - System Info ]\033[0m 🌌\n")
     print(f"User       : {getpass.getuser()}")
     print(f"Hostname   : {get_hostname()}")
     print(f"OS         : {distro.name()} {distro.version()}")
@@ -222,7 +216,7 @@ def main():
     local, public = get_ip()
     print(f"Local IP   : {local}")
     print(f"Public IP  : {public}")
-
+    print("\n✅ Run again anytime with: \033[1mpython3 aurafetch.py\033[0m")
 
 if __name__ == "__main__":
     main()
