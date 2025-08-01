@@ -21,24 +21,21 @@ chmod +x "$PY_SCRIPT_PATH"
 
 # Create launcher wrapper script
 echo "⚙️ Creating 'aurafetch' launcher command..."
-cat << 'EOF' > "$LAUNCHER_PATH"
+cat << EOF > "$LAUNCHER_PATH"
 #!/bin/bash
-PYTHON_BIN=$(command -v python3 || command -v python)
-if [[ -z "$PYTHON_BIN" ]]; then
+PYTHON_BIN=\$(command -v python3 || command -v python)
+if [[ -z "\$PYTHON_BIN" ]]; then
   echo "❌ Python is not installed."
   exit 1
 fi
-exec "$PYTHON_BIN" "$HOME/.local/bin/aurafetch.py" "$@"
+exec "\$PYTHON_BIN" "$PY_SCRIPT_PATH" "\$@"
 EOF
 chmod +x "$LAUNCHER_PATH"
 
 # Add ~/.local/bin to PATH in shell profiles if missing
 if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
-  for file in "$HOME/.bashrc" "$HOME/.zshrc"; do
-    if [[ -f "$file" ]]; then
-      echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$file"
-    fi
-  done
+  echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.bashrc"
+  echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.zshrc"
   echo "✅ Added $INSTALL_DIR to PATH. Restart your terminal or run:"
   echo "    source ~/.bashrc  OR  source ~/.zshrc"
 else
@@ -62,4 +59,5 @@ fi
 
 "$PYTHON_BIN" -m pip install --quiet --user psutil netifaces requests distro
 
-echo "🚀 Done! Now you can run: aurafetch"
+echo "🚀 Done! AuraFetch is ready."
+echo "💻 Run it from anywhere using: aurafetch"
