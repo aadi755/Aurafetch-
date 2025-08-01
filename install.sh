@@ -7,13 +7,17 @@ PY_SCRIPT_URL="https://raw.githubusercontent.com/aadi755/Aurafetch-/main/aurafet
 PY_SCRIPT_PATH="$INSTALL_DIR/aurafetch.py"
 LAUNCHER_PATH="$INSTALL_DIR/aurafetch"
 
-# Create install dir
+# Create install directory
 mkdir -p "$INSTALL_DIR"
 
-# Add ~/.local/bin to PATH if missing
-if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
-  echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.bashrc"
-  echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.zshrc"
+# Add ~/.local/bin to PATH in .bashrc and .zshrc if not already present
+if ! grep -qF "$INSTALL_DIR" <<< "$PATH"; then
+  if ! grep -qF "$INSTALL_DIR" "$HOME/.bashrc" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$INSTALL_DIR\"" >> "$HOME/.bashrc"
+  fi
+  if ! grep -qF "$INSTALL_DIR" "$HOME/.zshrc" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$INSTALL_DIR\"" >> "$HOME/.zshrc"
+  fi
   echo "✅ Added $INSTALL_DIR to PATH. Run: source ~/.bashrc or source ~/.zshrc"
 fi
 
@@ -34,7 +38,7 @@ EOF
 chmod +x "$LAUNCHER_PATH"
 
 # Install Python dependencies
-echo "📦 Installing Python dependencies (user only)..."
+echo "📦 Installing Python dependencies..."
 PYTHON_BIN=$(command -v python3)
 if [[ -z "$PYTHON_BIN" ]]; then
   echo "❌ python3 not found."
@@ -42,7 +46,7 @@ if [[ -z "$PYTHON_BIN" ]]; then
 fi
 
 if ! "$PYTHON_BIN" -m pip --version &>/dev/null; then
-  echo "❌ pip not found. Install with: sudo apt install python3-pip"
+  echo "❌ pip not found. Please install pip manually."
   exit 1
 fi
 
