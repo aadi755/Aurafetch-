@@ -1,33 +1,65 @@
 #!/bin/bash
 
-echo "🌌 Installing AuraFetch..."
+echo "🔧 Installing AuraFetch..."
 
-INSTALL_DIR="$HOME/.aurafetch"
-BIN_PATH="$INSTALL_DIR/aurafetch.py"
-REPO_URL="https://github.com/YOUR_USERNAME/aurafetch.git"
+# Set variables
+INSTALL_DIR="$HOME/.local/bin"
+SCRIPT_URL="https://raw.githubusercontent.com/aadi755/Aurafetch-/main/aurafetch.py"
+PY_SCRIPT_PATH="$INSTALL_DIR/aurafetch.py"
+LAUNCHER_PATH="$INSTALL_DIR/aurafetch"
 
-# Clone or update repo
-if [ -d "$INSTALL_DIR" ]; then
-    echo "🔄 Updating existing install..."
-    cd "$INSTALL_DIR" && git pull
+# Ensure bin directory exists
+mkdir -p "$INSTALL_DIR"
+
+# Download the Python script
+echo "📥 Downloading AuraFetch script..."
+if ! curl -fsSL "$SCRIPT_URL" -o "$PY_SCRIPT_PATH"; then
+  echo "❌ Failed to download AuraFetch script from $SCRIPT_URL"
+  exit 1
+fi
+chmod +x "$PY_SCRIPT_PATH"
+
+# Create launcher wrapper script
+echo "⚙️ Creating 'aurafetch' launcher command..."
+cat << 'EOF' > "$LAUNCHER_PATH"
+#!/bin/bash
+PYTHON_BIN=$(command -v python3 || command -v python)
+if [[ -z "$PYTHON_BIN" ]]; then
+  echo "❌ Python is not installed."
+  exit 1
+fi
+exec "$PYTHON_BIN" "$HOME/.local/bin/aurafetch.py" "$@"
+EOF
+chmod +x "$LAUNCHER_PATH"
+
+# Add ~/.local/bin to PATH in shell profiles if missing
+if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
+  for file in "$HOME/.bashrc" "$HOME/.zshrc"; do
+    if [[ -f "$file" ]]; then
+      echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$file"
+    fi
+  done
+  echo "✅ Added $INSTALL_DIR to PATH. Restart your terminal or run:"
+  echo "    source ~/.bashrc  OR  source ~/.zshrc"
 else
-    git clone "$REPO_URL" "$INSTALL_DIR"
+  echo "✅ AuraFetch launcher installed at: $LAUNCHER_PATH"
 fi
 
 # Install Python dependencies
 echo "📦 Installing Python dependencies..."
-python3 -m pip install --quiet --upgrade pip
-python3 -m pip install --quiet psutil distro requests netifaces
+PYTHON_BIN=$(command -v python3 || command -v python)
 
-# Create alias in shell config
-ALIAS_CMD="alias aurafetch='python3 $BIN_PATH'"
-SHELL_RC="$HOME/.bashrc"
-[[ $SHELL == *zsh ]] && SHELL_RC="$HOME/.zshrc"
-
-if ! grep -Fxq "$ALIAS_CMD" "$SHELL_RC"; then
-    echo "$ALIAS_CMD" >> "$SHELL_RC"
-    echo "✅ Alias 'aurafetch' added to $SHELL_RC"
+if [[ -z "$PYTHON_BIN" ]]; then
+  echo "❌ Python is not installed!"
+  exit 1
 fi
 
-echo "✅ Done! Type 'aurafetch' in your terminal."
-exec bash
+if ! "$PYTHON_BIN" -m pip --version &> /dev/null; then
+  echo "❌ pip is not available. Please install pip with:"
+  echo "    sudo apt install python3-pip  # or equivalent"
+  exit 1
+fi
+
+"$PYTHON_BIN" -m pip install --quiet --user psutil netifaces requests distro
+
+echo "🚀 Done! Now you can run: aurafetch"
