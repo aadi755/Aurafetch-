@@ -15,11 +15,10 @@ A beautiful, all-in-one system info tool — better than Neofetch or Fastfetch.
 
 ## 🚀 Install (1 Command)
 
-```bash
-bash <(curl -s https://raw.githubusercontent.com/YOUR_USERNAME/aurafetch/main/install.sh)
 ## 🚀 Installation
 
 Run this one-liner in your terminal:
 
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/aadi755/AuraFetch/main/install.sh)
+After this run aurafetch
