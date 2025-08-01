@@ -2,62 +2,55 @@
 
 echo "🔧 Installing AuraFetch..."
 
-# Set variables
-INSTALL_DIR="$HOME/.local/bin"
-SCRIPT_URL="https://raw.githubusercontent.com/aadi755/Aurafetch-/main/aurafetch.py"
+# Decide installation directory
+if [[ "$EUID" -eq 0 ]]; then
+  INSTALL_DIR="/usr/local/bin"
+else
+  INSTALL_DIR="$HOME/.local/bin"
+  mkdir -p "$INSTALL_DIR"
+
+  # Ensure it's in PATH
+  if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
+    echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.bashrc"
+    echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.zshrc"
+    echo "✅ Added $INSTALL_DIR to PATH. Run: source ~/.bashrc or source ~/.zshrc"
+  fi
+fi
+
+# Download target script and launcher
+PY_SCRIPT_URL="https://raw.githubusercontent.com/aadi755/Aurafetch-/main/aurafetch.py"
 PY_SCRIPT_PATH="$INSTALL_DIR/aurafetch.py"
 LAUNCHER_PATH="$INSTALL_DIR/aurafetch"
 
-# Ensure bin directory exists
-mkdir -p "$INSTALL_DIR"
-
-# Download the Python script
-echo "📥 Downloading AuraFetch script..."
-if ! curl -fsSL "$SCRIPT_URL" -o "$PY_SCRIPT_PATH"; then
-  echo "❌ Failed to download AuraFetch script from $SCRIPT_URL"
+echo "📥 Downloading aurafetch.py..."
+if ! curl -fsSL "$PY_SCRIPT_URL" -o "$PY_SCRIPT_PATH"; then
+  echo "❌ Failed to download aurafetch.py"
   exit 1
 fi
 chmod +x "$PY_SCRIPT_PATH"
 
-# Create launcher wrapper script
-echo "⚙️ Creating 'aurafetch' launcher command..."
+# Create the launcher that runs aurafetch.py
+echo "⚙️ Creating launcher script at $LAUNCHER_PATH..."
 cat << EOF > "$LAUNCHER_PATH"
 #!/bin/bash
-PYTHON_BIN=\$(command -v python3 || command -v python)
-if [[ -z "\$PYTHON_BIN" ]]; then
-  echo "❌ Python is not installed."
-  exit 1
-fi
-exec "\$PYTHON_BIN" "$PY_SCRIPT_PATH" "\$@"
+python3 "$PY_SCRIPT_PATH" "\$@"
 EOF
 chmod +x "$LAUNCHER_PATH"
-
-# Add ~/.local/bin to PATH in shell profiles if missing
-if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
-  echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.bashrc"
-  echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$HOME/.zshrc"
-  echo "✅ Added $INSTALL_DIR to PATH. Restart your terminal or run:"
-  echo "    source ~/.bashrc  OR  source ~/.zshrc"
-else
-  echo "✅ AuraFetch launcher installed at: $LAUNCHER_PATH"
-fi
 
 # Install Python dependencies
 echo "📦 Installing Python dependencies..."
 PYTHON_BIN=$(command -v python3 || command -v python)
-
 if [[ -z "$PYTHON_BIN" ]]; then
-  echo "❌ Python is not installed!"
+  echo "❌ Python not found!"
   exit 1
 fi
 
-if ! "$PYTHON_BIN" -m pip --version &> /dev/null; then
-  echo "❌ pip is not available. Please install pip with:"
-  echo "    sudo apt install python3-pip  # or equivalent"
+if ! "$PYTHON_BIN" -m pip --version &>/dev/null; then
+  echo "❌ pip not found. Please install pip first."
   exit 1
 fi
 
 "$PYTHON_BIN" -m pip install --quiet --user psutil netifaces requests distro
 
-echo "🚀 Done! AuraFetch is ready."
-echo "💻 Run it from anywhere using: aurafetch"
+echo -e "\n🚀 \033[1mAuraFetch installed successfully!\033[0m"
+echo -e "👉 Run it with: \033[1maurafetch\033[0m"
