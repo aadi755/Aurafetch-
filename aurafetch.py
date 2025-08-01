@@ -7,39 +7,99 @@ import subprocess
 import time
 import getpass
 import shutil
-from datetime import datetime
+import psutil
+import netifaces
+import requests
+import distro
 
-# Optional imports with fallback
-try:
-    import psutil
-except ImportError:
-    psutil = None
+def get_real_home():
+    return os.path.expanduser(f"~{os.environ.get('SUDO_USER', getpass.getuser())}")
 
-try:
-    import netifaces
-except ImportError:
-    netifaces = None
-
-try:
-    import requests
-except ImportError:
-    requests = None
-
-try:
-    import distro
-except ImportError:
-    distro = None
+def get_logo():
+    name = distro.id().lower()
+    logos = {
+        "ubuntu": """\033[1;35m
+            .-/+oossssoo+/-.              
+        `:+ssssssssssssssssss+:`          
+      -+ssssssssssssssssssyyssss+-        
+    .ossssssssssssssssssdMMMNysssso.      
+   /ssssssssssshdmmNNmmyNMMMMhssssss/     
+  +ssssssssshmydMMMMMMMNddddyssssssss+    
+ /sssssssshNMMMyhhyyyyhmNMMMNhssssssss/   
+.ssssssssdMMMNhsssssssssshNMMMdssssssss.  
++sssshhhyNMMNyssssssssssssyNMMMysssssss+  
+ossyNMMMNyMMhsssssssssssssshmmmhssssssso  
+ossyNMMMNyMMhsssssssssssssshmmmhssssssso  
++sssshhhyNMMNyssssssssssssyNMMMysssssss+  
+.ssssssssdMMMNhsssssssssshNMMMdssssssss.  
+ /sssssssshNMMMyhhyyyyhdNMMMNhssssssss/   
+  +sssssssssdmydMMMMMMMMddddyssssssss+    
+   /ssssssssssshdmNNNNmyNMMMMhssssss/     
+    .ossssssssssssssssssdMMMNysssso.      
+      -+sssssssssssssssssyyyssss+-        
+        `:+ssssssssssssssssss+:`          
+            .-/+oossssoo+/-.
+\033[0m""",
+        "debian": """\033[1;31m
+       _,met$$$$$gg.       
+    ,g$$$$$$$$$$$$$$$P.    
+  ,g$$P"     """Y$$.".      
+,$$P'              `$$$.    
+',$$P       ,ggs.     `$$b:  
+`d$$'     ,$P"'   .    $$$   
+ $$P      d$'     ,    $$P   
+ $$:      $$.   -    ,d$$'   
+ $$;      Y$b._   _,d$P'     
+ Y$$.    `.`"Y$$$$P"'        
+ `$$b      "-.__             
+  `Y$$                        
+   `Y$$.                      
+     `$$b.                    
+       `Y$$b.                 
+          `"Y$b._             
+              `""""
+\033[0m""",
+        "arch": """\033[1;34m
+                 -`                 
+                .o+`                
+               `ooo/                
+              `+oooo:               
+             `+oooooo:              
+             -+oooooo+:             
+           `/:-:++oooo+:            
+          `/++++/+++++++:           
+         `/++++++++++++++:          
+        `/+++ooooooooooooo/`        
+       ./ooosssso++osssssso+`       
+      .oossssso-````/ossssss+`      
+     -osssssso.      :ssssssso.     
+    :osssssss/        osssso+++.    
+   /ossssssss/        +ssssooo/-    
+  `/ossssso+/:-        -:/+osssso+-  
+ `+sso+:-`                 `.-/+oso: 
+`++:.                           `-/+/
+.`                                 `/
+\033[0m""",
+        "kali": """\033[1;36m
+     ____
+    /\\  _`\\
+    \\ \\ \\/\\_\\  ___     ___
+     \\ \\ \\/_/_ / __`\\ /' _ `\\
+      \\ \\ \\L\\ \\\\ \\L\\ \\\\ \\ \\/\\ \\
+       \\ \\____/ \\____/ \\_\\ \\_\\
+        \\/___/ \\/___/ \\/_/\\/_/
+\033[0m""",
+    }
+    return logos.get(name, "\033[1;32mAuraFetch\n\033[0m")
 
 def get_hostname():
     return socket.gethostname()
 
 def get_uptime():
-    if psutil:
-        uptime_seconds = int(time.time() - psutil.boot_time())
-        hours = uptime_seconds // 3600
-        minutes = (uptime_seconds % 3600) // 60
-        return f"{hours}h {minutes}m"
-    return "Unavailable"
+    uptime_seconds = int(time.time() - psutil.boot_time())
+    hours = uptime_seconds // 3600
+    minutes = (uptime_seconds % 3600) // 60
+    return f"{hours}h {minutes}m"
 
 def get_shell():
     return os.environ.get("SHELL", "N/A")
@@ -79,34 +139,28 @@ def get_gpu():
     return "lspci not installed"
 
 def get_ram():
-    if psutil:
-        mem = psutil.virtual_memory()
-        used = round(mem.used / 1e9, 2)
-        total = round(mem.total / 1e9, 2)
-        return f"{used} / {total} GB"
-    return "Unavailable"
+    mem = psutil.virtual_memory()
+    used = round(mem.used / 1e9, 2)
+    total = round(mem.total / 1e9, 2)
+    return f"{used} / {total} GB"
 
 def get_disk():
-    if psutil:
-        disk = psutil.disk_usage('/')
-        used = disk.used // 2**30
-        total = disk.total // 2**30
-        return f"{used} / {total} GB"
-    return "Unavailable"
+    disk = psutil.disk_usage('/')
+    used = disk.used // 2**30
+    total = disk.total // 2**30
+    return f"{used} / {total} GB"
 
 def get_ip():
     local, public = "N/A", "N/A"
-    if netifaces:
-        try:
-            iface = netifaces.gateways()['default'][netifaces.AF_INET][1]
-            local = netifaces.ifaddresses(iface)[netifaces.AF_INET][0]['addr']
-        except:
-            pass
-    if requests:
-        try:
-            public = requests.get("https://api.ipify.org", timeout=3).text
-        except:
-            pass
+    try:
+        iface = netifaces.gateways()['default'][netifaces.AF_INET][1]
+        local = netifaces.ifaddresses(iface)[netifaces.AF_INET][0]['addr']
+    except:
+        pass
+    try:
+        public = requests.get("https://api.ipify.org", timeout=3).text
+    except:
+        pass
     return local, public
 
 def get_resolution():
@@ -133,13 +187,11 @@ def get_package_count():
         return "N/A"
 
 def main():
-    print("🌌 [ AuraFetch - Ultimate System Info ] 🌌\n")
+    print(get_logo())
+    print("🌌 \033[1m[ AuraFetch - Ultimate System Info ]\033[0m 🌌\n")
     print(f"User       : {getpass.getuser()}")
     print(f"Hostname   : {get_hostname()}")
-    if distro:
-        print(f"OS         : {distro.name()} {distro.version()}")
-    else:
-        print(f"OS         : {platform.system()} {platform.release()}")
+    print(f"OS         : {distro.name()} {distro.version()}")
     print(f"Kernel     : {platform.release()}")
     print(f"Uptime     : {get_uptime()}")
     print(f"Shell      : {get_shell()}")
