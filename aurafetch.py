@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 
-import os, platform, socket, subprocess, time
+import os
+import platform
+import socket
+import subprocess
+import time
 import getpass
+import shutil
 from datetime import datetime
 
 # Optional imports with fallback
@@ -43,7 +48,16 @@ def get_terminal():
     return os.environ.get("TERM", "N/A")
 
 def get_cpu():
-    return platform.processor() or "Unknown CPU"
+    cpu = platform.processor()
+    if not cpu:
+        try:
+            with open("/proc/cpuinfo") as f:
+                for line in f:
+                    if "model name" in line:
+                        return line.strip().split(":")[1].strip()
+        except:
+            return "Unknown CPU"
+    return cpu
 
 def get_cpu_temp():
     path = "/sys/class/thermal/thermal_zone0/temp"
@@ -56,11 +70,13 @@ def get_cpu_temp():
     return "N/A"
 
 def get_gpu():
-    try:
-        output = subprocess.check_output("lspci | grep -i 'vga\\|3d'", shell=True).decode()
-        return output.strip().split(":")[-1].strip()
-    except:
-        return "Unavailable or lspci missing"
+    if shutil.which("lspci"):
+        try:
+            output = subprocess.check_output("lspci | grep -i 'vga\\|3d'", shell=True).decode()
+            return output.strip().split(":")[-1].strip()
+        except:
+            return "Error reading GPU"
+    return "lspci not installed"
 
 def get_ram():
     if psutil:
@@ -94,19 +110,21 @@ def get_ip():
     return local, public
 
 def get_resolution():
-    try:
-        res = subprocess.check_output("xdpyinfo | grep dimensions", shell=True).decode()
-        return res.strip().split()[1]
-    except:
-        return "N/A"
+    if os.environ.get("DISPLAY") and shutil.which("xdpyinfo"):
+        try:
+            res = subprocess.check_output("xdpyinfo | grep dimensions", shell=True).decode()
+            return res.strip().split()[1]
+        except:
+            return "Unknown"
+    return "No X / Headless"
 
 def get_package_count():
     try:
-        if os.path.exists("/usr/bin/dpkg"):
-            output = subprocess.check_output("dpkg -l | wc -l", shell=True).decode()
-        elif os.path.exists("/usr/bin/pacman"):
+        if shutil.which("dpkg"):
+            output = subprocess.check_output("dpkg -l | grep '^ii' | wc -l", shell=True).decode()
+        elif shutil.which("pacman"):
             output = subprocess.check_output("pacman -Q | wc -l", shell=True).decode()
-        elif os.path.exists("/usr/bin/rpm"):
+        elif shutil.which("rpm"):
             output = subprocess.check_output("rpm -qa | wc -l", shell=True).decode()
         else:
             return "N/A"
