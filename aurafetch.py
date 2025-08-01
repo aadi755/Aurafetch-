@@ -18,7 +18,7 @@ def get_real_home():
 def get_logo():
     name = distro.id().lower()
     logos = {
-        "ubuntu": """\033[1;35m
+        "ubuntu": '''\033[1;35m
             .-/+oossssoo+/-.              
         `:+ssssssssssssssssss+:`          
       -+ssssssssssssssssssyyssss+-        
@@ -39,8 +39,9 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
       -+sssssssssssssssssyyyssss+-        
         `:+ssssssssssssssssss+:`          
             .-/+oossssoo+/-.
-\033[0m""",
-        "debian": """\033[1;31m
+\033[0m''',
+
+        "debian": '''\033[1;31m
        _,met$$$$$gg.       
     ,g$$$$$$$$$$$$$$$P.    
   ,g$$P"     """Y$$.".      
@@ -57,9 +58,10 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
      `$$b.                    
        `Y$$b.                 
           `"Y$b._             
-              `""""
-\033[0m""",
-        "arch": """\033[1;34m
+              `"""
+\033[0m''',
+
+        "arch": '''\033[1;34m
                  -`                 
                 .o+`                
                `ooo/                
@@ -79,8 +81,9 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
  `+sso+:-`                 `.-/+oso: 
 `++:.                           `-/+/
 .`                                 `/
-\033[0m""",
-        "kali": """\033[1;36m
+\033[0m''',
+
+        "kali": '''\033[1;36m
      ____
     /\\  _`\\
     \\ \\ \\/\\_\\  ___     ___
@@ -88,9 +91,9 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
       \\ \\ \\L\\ \\\\ \\L\\ \\\\ \\ \\/\\ \\
        \\ \\____/ \\____/ \\_\\ \\_\\
         \\/___/ \\/___/ \\/_/\\/_/
-\033[0m""",
+\033[0m'''
     }
-    return logos.get(name, "\033[1;32mAuraFetch\n\033[0m")
+    return logos.get(name, "\033[1;32mAuraFetch\033[0m")
 
 def get_hostname():
     return socket.gethostname()
