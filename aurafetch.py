@@ -59,8 +59,8 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
  $$;      Y$b._   _,d$P'     
  Y$$.    `.`"Y$$$$P"'        
  `$$b      "-.__             
-  `Y$$                         
-   `Y$$.                       
+  `Y$$                          
+   `Y$$.                        
      `$$b.                    
        `Y$$b.                 
           `"Y$b._             
@@ -86,7 +86,7 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
   `/ossssso+/:-        -:/+osssso+-  
  `+sso+:-`                 `.-/+oso: 
 `++:.                           `-/+/
-.`                                 `/
+.`                                 `/ 
 \033[0m''',
 
         "kali": '''\033[1;36m
@@ -199,24 +199,24 @@ def get_package_count():
 def main():
     print(get_logo())
     print("🌌 \033[1m[ AuraFetch - System Info ]\033[0m 🌌\n")
-    print(f"User       : {getpass.getuser()}")
-    print(f"Hostname   : {get_hostname()}")
-    print(f"OS         : {distro.name()} {distro.version()}")
-    print(f"Kernel     : {platform.release()}")
-    print(f"Uptime     : {get_uptime()}")
-    print(f"Shell      : {get_shell()}")
-    print(f"Terminal   : {get_terminal()}")
-    print(f"CPU        : {get_cpu()}")
-    print(f"CPU Temp   : {get_cpu_temp()}")
-    print(f"GPU        : {get_gpu()}")
-    print(f"RAM        : {get_ram()}")
-    print(f"Disk       : {get_disk()}")
-    print(f"Resolution : {get_resolution()}")
-    print(f"Packages   : {get_package_count()}")
+    print(f"👤 User       : {getpass.getuser()}")
+    print(f"💻 Hostname   : {get_hostname()}")
+    print(f"🖥️ OS         : {distro.name()} {distro.version()}")
+    print(f"🧬 Kernel     : {platform.release()}")
+    print(f"⏱️ Uptime     : {get_uptime()}")
+    print(f"🐚 Shell      : {get_shell()}")
+    print(f"🪟 Terminal   : {get_terminal()}")
+    print(f"🧠 CPU        : {get_cpu()}")
+    print(f"🌡️ CPU Temp   : {get_cpu_temp()}")
+    print(f"🎮 GPU        : {get_gpu()}")
+    print(f"💾 RAM        : {get_ram()}")
+    print(f"🗃️ Disk       : {get_disk()}")
+    print(f"🖼️ Resolution : {get_resolution()}")
+    print(f"📦 Packages   : {get_package_count()}")
     local, public = get_ip()
-    print(f"Local IP   : {local}")
-    print(f"Public IP  : {public}")
-    print("\n✅ Run again anytime with: \033[1mpython3 aurafetch.py\033[0m")
+    print(f"🌐 Local IP   : {local}")
+    print(f"🛰️ Public IP  : {public}")
+    print("\n✅ Run again anytime with: \033[1maurafetch\033[0m")
 
 if __name__ == "__main__":
     main()
