@@ -24,4 +24,4 @@ A beautiful, all-in-one system info tool — better than Neofetch or Fastfetch.
 Run this one-liner in your terminal:
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/aadi755/AuraFetch/main/install.sh)
+bash <(curl -s https://raw.githubusercontent.com/aadi755/Aurafetch-/main/install.sh)
