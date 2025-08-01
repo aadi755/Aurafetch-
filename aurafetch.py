@@ -7,16 +7,16 @@ import subprocess
 import time
 import getpass
 import shutil
+
+# Required modules
 import psutil
 import netifaces
 import requests
 import distro
 
-def get_real_home():
-    return os.path.expanduser(f"~{os.environ.get('SUDO_USER', getpass.getuser())}")
 
 def get_logo():
-    name = distro.id().lower()
+    os_id = distro.id().lower()
     logos = {
         "ubuntu": '''\033[1;35m
             .-/+oossssoo+/-.              
@@ -29,7 +29,6 @@ def get_logo():
 .ssssssssdMMMNhsssssssssshNMMMdssssssss.  
 +sssshhhyNMMNyssssssssssssyNMMMysssssss+  
 ossyNMMMNyMMhsssssssssssssshmmmhssssssso  
-ossyNMMMNyMMhsssssssssssssshmmmhssssssso  
 +sssshhhyNMMNyssssssssssssyNMMMysssssss+  
 .ssssssssdMMMNhsssssssssshNMMMdssssssss.  
  /sssssssshNMMMyhhyyyyhdNMMMNhssssssss/   
@@ -38,7 +37,7 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
     .ossssssssssssssssssdMMMNysssso.      
       -+sssssssssssssssssyyyssss+-        
         `:+ssssssssssssssssss+:`          
-            .-/+oossssoo+/-.
+            .-/+oossssoo+/-               
 \033[0m''',
 
         "debian": '''\033[1;31m
@@ -53,8 +52,8 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
  $$;      Y$b._   _,d$P'     
  Y$$.    `.`"Y$$$$P"'        
  `$$b      "-.__             
-  `Y$$                        
-   `Y$$.                      
+  `Y$$                         
+   `Y$$.                       
      `$$b.                    
        `Y$$b.                 
           `"Y$b._             
@@ -84,19 +83,22 @@ ossyNMMMNyMMhsssssssssssssshmmmhssssssso
 \033[0m''',
 
         "kali": '''\033[1;36m
-     ____
-    /\\  _`\\
-    \\ \\ \\/\\_\\  ___     ___
-     \\ \\ \\/_/_ / __`\\ /' _ `\\
-      \\ \\ \\L\\ \\\\ \\L\\ \\\\ \\ \\/\\ \\
+     ____      
+    /\\  _`\\    
+    \\ \\ \\/\\_\\  ___     ___    
+     \\ \\ \\/_/_ / __`\\ /' _ `\\  
+      \\ \\ \\L\\ \\\\ \\L\\ \\\\ \\ \\/\\ \\ 
        \\ \\____/ \\____/ \\_\\ \\_\\
         \\/___/ \\/___/ \\/_/\\/_/
 \033[0m'''
     }
-    return logos.get(name, "\033[1;32mAuraFetch\033[0m")
+
+    return logos.get(os_id, "\033[1;32mAuraFetch\033[0m")
+
 
 def get_hostname():
     return socket.gethostname()
+
 
 def get_uptime():
     uptime_seconds = int(time.time() - psutil.boot_time())
@@ -104,11 +106,14 @@ def get_uptime():
     minutes = (uptime_seconds % 3600) // 60
     return f"{hours}h {minutes}m"
 
+
 def get_shell():
     return os.environ.get("SHELL", "N/A")
 
+
 def get_terminal():
     return os.environ.get("TERM", "N/A")
+
 
 def get_cpu():
     cpu = platform.processor()
@@ -122,6 +127,7 @@ def get_cpu():
             return "Unknown CPU"
     return cpu
 
+
 def get_cpu_temp():
     path = "/sys/class/thermal/thermal_zone0/temp"
     if os.path.exists(path):
@@ -132,6 +138,7 @@ def get_cpu_temp():
             pass
     return "N/A"
 
+
 def get_gpu():
     if shutil.which("lspci"):
         try:
@@ -141,17 +148,20 @@ def get_gpu():
             return "Error reading GPU"
     return "lspci not installed"
 
+
 def get_ram():
     mem = psutil.virtual_memory()
     used = round(mem.used / 1e9, 2)
     total = round(mem.total / 1e9, 2)
     return f"{used} / {total} GB"
 
+
 def get_disk():
     disk = psutil.disk_usage('/')
     used = disk.used // 2**30
     total = disk.total // 2**30
     return f"{used} / {total} GB"
+
 
 def get_ip():
     local, public = "N/A", "N/A"
@@ -166,6 +176,7 @@ def get_ip():
         pass
     return local, public
 
+
 def get_resolution():
     if os.environ.get("DISPLAY") and shutil.which("xdpyinfo"):
         try:
@@ -174,6 +185,7 @@ def get_resolution():
         except:
             return "Unknown"
     return "No X / Headless"
+
 
 def get_package_count():
     try:
@@ -188,6 +200,7 @@ def get_package_count():
         return output.strip()
     except:
         return "N/A"
+
 
 def main():
     print(get_logo())
@@ -209,6 +222,7 @@ def main():
     local, public = get_ip()
     print(f"Local IP   : {local}")
     print(f"Public IP  : {public}")
+
 
 if __name__ == "__main__":
     main()
