@@ -53,5 +53,6 @@ else
   echo "✅ $INSTALL_DIR is already in your PATH."
 fi
 
-echo -e "\n🚀 \033[1mAuraFetch installed successfully!\033[0m"
-echo -e "👉 Run it now with: \033[1maurafetch\033[0m"
+echo -e "\n🚀 AuraFetch installed successfully!"
+echo -e "👉 Run it now with: aurafetch"
+
