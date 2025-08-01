@@ -9,7 +9,7 @@ A beautiful, all-in-one system info tool — better than Neofetch or Fastfetch.
 - 🖥️ OS, Kernel, Hostname  
 - ⏳ Uptime  
 - ⚙️ CPU Info & Temperature (Linux only)  
-- 🎮 GPU Info (via `lspci`)  
+- 🎮 GPU Info  
 - 🧠 RAM Usage  
 - 💾 Disk Usage  
 - 🌐 Local & Public IP  
